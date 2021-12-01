@@ -17,29 +17,42 @@ fn parse_data(s: String) -> Vec<i64> {
         .collect()
 }
 
-fn count_depth_increases(nums: &[i64]) -> i64 {
-    let mut count = 0;
-    for i in 0..nums.len() {
-        if i < nums.len() - 1 && nums[i + 1] > nums[i] {
-            count += 1;
-        }
-    }
-    count
+fn count_depth_increases(nums: &[i64]) -> usize {
+    pair_with_neighbors(nums)
+        .into_iter()
+        .filter(|(a, b)| a < b)
+        .count()
 }
 
-fn count_increases_by_windows(nums: &[i64]) -> i64 {
-    let mut count = 0;
-    for i in 0..nums.len() {
-        if i < nums.len() - 1 && i > 1 {
-            let previous_window = nums[i - 2] + nums[i - 1] + nums[i];
-            let current_window = nums[i - 1] + nums[i] + nums[i + 1];
+fn count_increases_by_windows(nums: &[i64]) -> usize {
+    pair_with_neighbors(&divide_into_windows(nums))
+        .into_iter()
+        .filter(|((a, b, c), (d, e, f))| a + b + c < d + e + f)
+        .count()
+}
 
-            if current_window > previous_window {
-                count += 1;
-            }
+fn pair_with_neighbors<T>(nums: &[T]) -> Vec<(T, T)>
+where
+    T: Copy,
+{
+    let mut pairs: Vec<(T, T)> = Vec::new();
+    for i in 0..nums.len() {
+        if i < nums.len() - 1 {
+            pairs.push((nums[i], nums[i + 1]))
         }
     }
-    count
+    pairs
+}
+
+fn divide_into_windows(nums: &[i64]) -> Vec<(i64, i64, i64)> {
+    let mut windows: Vec<(i64, i64, i64)> = Vec::new();
+    for i in 2..nums.len() {
+        if i < nums.len() {
+            let window = (nums[i - 2], nums[i - 1], nums[i]);
+            windows.push(window);
+        }
+    }
+    windows
 }
 
 #[cfg(test)]
