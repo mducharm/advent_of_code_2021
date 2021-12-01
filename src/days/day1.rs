@@ -20,7 +20,7 @@ fn parse_data(s: String) -> Vec<i64> {
 fn count_depth_increases(nums: &[i64]) -> i64 {
     let mut count = 0;
     for i in 0..nums.len() {
-        if i < nums.len() - 1 && i > 0 && nums[i + 1] > nums[i] {
+        if i < nums.len() - 1 && nums[i + 1] > nums[i] {
             count += 1;
         }
     }
