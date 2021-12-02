@@ -6,8 +6,8 @@ pub fn run(input_data: &[(&str, &str)]) {
     let answer_1 = calculate_position(&data);
     let answer_2 = calculate_position_with_aim(data);
 
-    dbg!(answer_1.horizontal * answer_1.depth);
-    dbg!(answer_2.horizontal * answer_2.depth);
+    dbg!(answer_1.product());
+    dbg!(answer_2.product());
 }
 
 fn parse_data(s: String) -> Vec<Instruction> {
@@ -36,20 +36,17 @@ fn parse_line_into_instruction(s: &str) -> anyhow::Result<Instruction> {
 fn calculate_position(instructions: &[Instruction]) -> Position {
     let mut position = Position::origin();
 
-    for instruction in instructions {
-        let (h, d) = calcuate_increase(instruction);
+    for i in instructions {
+        let (h, d) = match i {
+            Instruction::Up(x) => (0, -*x),
+            Instruction::Down(x) => (0, *x),
+            Instruction::Forward(x) => (*x, 0),
+            _ => (0, 0),
+        };
         position.horizontal += h;
         position.depth += d;
     }
     position
-}
-fn calcuate_increase(i: &Instruction) -> (i64, i64) {
-    match i {
-        Instruction::Up(x) => (0, -*x),
-        Instruction::Down(x) => (0, *x),
-        Instruction::Forward(x) => (*x, 0),
-        _ => (0, 0),
-    }
 }
 
 fn calculate_position_with_aim(instructions: Vec<Instruction>) -> Position {
@@ -70,11 +67,7 @@ fn calculate_position_with_aim(instructions: Vec<Instruction>) -> Position {
             position.depth += aim * x;
         }
     }
-
-    Position {
-        horizontal: position.horizontal,
-        depth: position.depth,
-    }
+    position
 }
 
 #[derive(Debug)]
@@ -89,6 +82,10 @@ impl Position {
             horizontal: 0,
             depth: 0,
         }
+    }
+
+    fn product(&self) -> i64 {
+        self.horizontal * self.depth
     }
 }
 
