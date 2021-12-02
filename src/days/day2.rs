@@ -3,11 +3,11 @@ use crate::helper;
 pub fn run(input_data: &[(&str, &str)]) {
     let data = parse_data(helper::get_file_data_by_name(input_data, "day2"));
 
-    let answer_1 = calculate_position(&data);
-    let answer_2 = calculate_position_with_aim(data);
+    let answer_1 = calculate_position(&data).product();
+    let answer_2 = calculate_position_with_aim(data).product();
 
-    dbg!(answer_1.product());
-    dbg!(answer_2.product());
+    dbg!(answer_1);
+    dbg!(answer_2);
 }
 
 fn parse_data(s: String) -> Vec<Instruction> {
