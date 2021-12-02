@@ -34,10 +34,7 @@ fn parse_line_into_instruction(s: &str) -> anyhow::Result<Instruction> {
 }
 
 fn calculate_position(instructions: &[Instruction]) -> Position {
-    let mut position = Position {
-        horizontal: 0,
-        depth: 0,
-    };
+    let mut position = Position::origin();
 
     for instruction in instructions {
         let (h, d) = calcuate_increase(instruction);
@@ -56,34 +53,29 @@ fn calcuate_increase(i: &Instruction) -> (i64, i64) {
 }
 
 fn calculate_position_with_aim(instructions: Vec<Instruction>) -> Position {
-    let mut position = PositionWithAim {
-        horizontal: 0,
-        depth: 0,
-        aim: 0
-    };
+    let mut position = Position::origin();
+    let mut aim = 0;
 
     for instruction in instructions {
-
         if let Instruction::Up(x) = instruction {
-            position.aim -= x;
+            aim -= x;
         }
 
         if let Instruction::Down(x) = instruction {
-            position.aim += x;
+            aim += x;
         }
 
         if let Instruction::Forward(x) = instruction {
             position.horizontal += x;
-            position.depth += position.aim * x;
+            position.depth += aim * x;
         }
     }
 
     Position {
         horizontal: position.horizontal,
-        depth: position.depth
+        depth: position.depth,
     }
 }
-
 
 #[derive(Debug)]
 struct Position {
@@ -91,22 +83,18 @@ struct Position {
     depth: i64,
 }
 
-#[derive(Debug)]
-struct PositionWithAim {
-    horizontal: i64,
-    depth: i64,
-    aim: i64,
+impl Position {
+    fn origin() -> Position {
+        Position {
+            horizontal: 0,
+            depth: 0,
+        }
+    }
 }
 
 impl PartialEq for Position {
     fn eq(&self, other: &Self) -> bool {
         self.horizontal == other.horizontal && self.depth == other.depth
-    }
-}
-
-impl PartialEq for PositionWithAim {
-    fn eq(&self, other: &Self) -> bool {
-        self.horizontal == other.horizontal && self.depth == other.depth && self.aim == other.aim
     }
 }
 
@@ -119,7 +107,7 @@ enum Instruction {
 
 #[cfg(test)]
 mod tests {
-    use crate::days::day2::{calculate_position, Position, calculate_position_with_aim};
+    use crate::days::day2::{calculate_position, calculate_position_with_aim, Position};
 
     use super::parse_data;
 
@@ -131,8 +119,7 @@ down 8
 forward 2";
 
     #[test]
-    fn problem_1_part_1() {
-        // let measurements = [199, 200, 208, 210, 200, 207, 240, 269, 260, 263];
+    fn part_1() {
         let instructions = parse_data(String::from(INPUT));
 
         assert_eq!(
@@ -141,13 +128,11 @@ forward 2";
                 horizontal: 15,
                 depth: 10
             }
-        )
-
-        // assert_eq!(count_depth_increases(&measurements), 7);
+        );
     }
 
     #[test]
-    fn problem_1_part_2() {
+    fn part_2() {
         let instructions = parse_data(String::from(INPUT));
 
         assert_eq!(
@@ -156,6 +141,6 @@ forward 2";
                 horizontal: 15,
                 depth: 60,
             }
-        )
+        );
     }
 }
