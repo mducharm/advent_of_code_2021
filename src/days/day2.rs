@@ -20,10 +20,16 @@ fn parse_data(s: String) -> Vec<Instruction> {
 fn parse_line_into_instruction(s: &str) -> anyhow::Result<Instruction> {
     let mut tokens = s.split(' ');
 
-    let command = tokens.next();
-    let amount = str::parse::<i64>(tokens.next().unwrap()).unwrap();
+    let command = tokens
+        .next()
+        .ok_or(helper::ParseError::Expected("expected command"))?;
 
-    let instruction = match command.unwrap() {
+    let amount = tokens
+        .next()
+        .ok_or(helper::ParseError::Expected("expected amount"))?
+        .parse::<i64>()?;
+
+    let instruction = match command {
         "up" => Instruction::Up(amount),
         "down" => Instruction::Down(amount),
         "forward" => Instruction::Forward(amount),
