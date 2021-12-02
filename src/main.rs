@@ -6,13 +6,14 @@ mod helper;
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
     
-    let input_data = include_input_data!("day1", "day2");
+    let input_data = include_input_data!("day1", "day2", "day3");
 
     if let Some(arg) = args.get(1) {
 
         let day_to_run = match arg.as_str() {
             "day1" | "1" => days::day1::run,
             "day2" | "2" => days::day2::run,
+            "day3" | "3" => days::day3::run,
             _ => do_nothing
         };
 
@@ -21,6 +22,7 @@ fn main() -> anyhow::Result<()> {
         // Run all days
         days::day1::run(&input_data);
         days::day2::run(&input_data);
+        days::day3::run(&input_data);
     }
 
 
