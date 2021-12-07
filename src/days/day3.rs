@@ -4,8 +4,13 @@ pub fn run(input_data: &[(&str, &str)]) {
     let data = parse_data(helper::get_file_data_by_name(input_data, "day3"));
 
     let answer_1 = data.get_power_consumption();
+    let answer_2 = data.get_life_support_rating();
 
     dbg!(answer_1);
+    dbg!(answer_2);
+    dbg!(data.get_oxygen_generator_rating());
+    dbg!(data.get_co2_scrubber_rating());
+    dbg!(data.get_life_support_rating());
 }
 
 fn parse_data(s: String) -> DiagnosticReport {
@@ -34,18 +39,7 @@ impl DiagnosticReport {
         let mut bits: Vec<usize> = Vec::new();
 
         for i in 0..self.number_of_bits {
-            dbg!(i);
-
-            let total = &self.values.len();
-            let zero_count = &self
-                .values
-                .to_owned()
-                .into_iter()
-                .filter(|x| (x >> i) & 1 == 0) // 
-                .count();
-            let one_count = total - zero_count;
-
-            let bit = if zero_count > &one_count { 0 } else { 1 };
+            let bit = self.determine_most_common_bit(i);
             bits.insert(0, bit);
         }
 
@@ -59,6 +53,19 @@ impl DiagnosticReport {
         gamma_rate
     }
 
+    fn determine_most_common_bit(&self, i: usize) -> usize {
+        let total = &self.values.len();
+        let zero_count = &self
+            .values
+            .to_owned()
+            .into_iter()
+            .filter(|x| (x >> i) & 1 == 0) //
+            .count();
+        let one_count = total - zero_count;
+        let bit = if zero_count > &one_count { 0 } else { 1 };
+        bit
+    }
+
     fn get_epsilon_rate(&self) -> usize {
         let mask = (1 << self.number_of_bits) - 1;
         let inverse = !self.get_gamma_rate();
@@ -68,6 +75,82 @@ impl DiagnosticReport {
 
     fn get_power_consumption(&self) -> usize {
         self.get_gamma_rate() * self.get_epsilon_rate()
+    }
+
+    fn get_oxygen_generator_rating(&self) -> usize {
+        let mut values = self.values.clone();
+
+        for i in (1..self.number_of_bits).rev() {
+            let most_common_bit = self.determine_most_common_bit(i);
+
+            if values.len() > 2 {
+                values = values
+                    .into_iter()
+                    .filter(|x| (x >> i) & 1 == most_common_bit)
+                    .collect();
+            }
+
+            // let z = &values
+            //     .clone()
+            //     .into_iter()
+            //     .map(|x| format!("{:b}", x))
+            //     .collect::<Vec<String>>();
+            // dbg!(z);
+        }
+
+        if values.len() > 1 {
+            values = values.into_iter().filter(|x| x & 1 == 1).collect();
+        }
+
+        // let z = &values
+        //     .clone()
+        //     .into_iter()
+        //     .map(|x| format!("{:b}", x))
+        //     .collect::<Vec<String>>();
+        // dbg!(z);
+
+        values[0]
+    }
+
+    fn get_co2_scrubber_rating(&self) -> usize {
+        let mut values = self.values.clone();
+
+        for i in (1..self.number_of_bits).rev() {
+            dbg!(i);
+            let most_common_bit = self.determine_most_common_bit(i);
+
+            dbg!(&most_common_bit);
+            if values.len() > 2 {
+                values = values
+                    .into_iter()
+                    .filter(|x| (x >> i) & 1 != most_common_bit)
+                    .collect();
+            }
+
+            // let z = &values
+            //     .clone()
+            //     .into_iter()
+            //     .map(|x| format!("{:b}", x))
+            //     .collect::<Vec<String>>();
+            // dbg!(z);
+        }
+
+        if values.len() > 1 {
+            values = values.into_iter().filter(|x| x & 1 == 0).collect();
+        }
+
+        // let z = &values
+        //     .clone()
+        //     .into_iter()
+        //     .map(|x| format!("{:b}", x))
+        //     .collect::<Vec<String>>();
+        // dbg!(z);
+        // dbg!(&values);
+        values[0]
+    }
+
+    fn get_life_support_rating(&self) -> usize {
+        self.get_oxygen_generator_rating() * self.get_co2_scrubber_rating()
     }
 }
 
@@ -99,6 +182,10 @@ mod tests {
 
     #[test]
     fn part_2() {
-        // todo!()
+        let data = parse_data(String::from(INPUT));
+
+        assert_eq!(data.get_oxygen_generator_rating(), 23);
+        assert_eq!(data.get_co2_scrubber_rating(), 10);
+        assert_eq!(data.get_life_support_rating(), 230);
     }
 }
