@@ -1,6 +1,6 @@
 use crate::helper;
 
-pub fn run(input_data: &[(&str, &str)]) {
+pub fn run(input_data: &[(&str, &str)]) -> anyhow::Result<()> {
     let data = parse_data(helper::get_file_data_by_name(input_data, "day3"));
 
     let answer_1 = data.get_power_consumption();
@@ -11,7 +11,10 @@ pub fn run(input_data: &[(&str, &str)]) {
     dbg!(data.get_oxygen_generator_rating());
     dbg!(data.get_co2_scrubber_rating());
     dbg!(data.get_life_support_rating());
+
+    Ok(())
 }
+
 
 fn parse_data(s: String) -> DiagnosticReport {
     let values = s

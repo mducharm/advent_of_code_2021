@@ -1,6 +1,6 @@
 use crate::helper;
 
-pub fn run(input_data: &[(&str, &str)]) {
+pub fn run(input_data: &[(&str, &str)]) -> anyhow::Result<()> {
     let data = parse_data(helper::get_file_data_by_name(input_data, "day2"));
 
     let answer_1 = calculate_position(&data).product();
@@ -8,6 +8,7 @@ pub fn run(input_data: &[(&str, &str)]) {
 
     dbg!(answer_1);
     dbg!(answer_2);
+    Ok(())
 }
 
 fn parse_data(s: String) -> Vec<Instruction> {

@@ -2,7 +2,7 @@ use itertools::Itertools;
 
 use crate::helper;
 
-pub fn run(input_data: &[(&str, &str)]) {
+pub fn run(input_data: &[(&str, &str)]) -> anyhow::Result<()> {
     let data = parse_data(helper::get_file_data_by_name(input_data, "day1"));
 
     let answer_1 = count_depth_increases(&data);
@@ -10,6 +10,7 @@ pub fn run(input_data: &[(&str, &str)]) {
 
     dbg!(answer_1);
     dbg!(answer_2);
+    Ok(())
 }
 
 fn parse_data(s: String) -> Vec<i64> {
