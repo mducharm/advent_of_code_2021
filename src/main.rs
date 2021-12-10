@@ -5,11 +5,11 @@ mod helper;
 
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
-    
-    let input_data = include_input_data!("day1", "day2", "day3", "day4", "day5", "day6", "day7", "day8", "day9");
+
+    let input_data =
+        include_input_data!("day1", "day2", "day3", "day4", "day5", "day6", "day7", "day8", "day9", "day10");
 
     if let Some(arg) = args.get(1) {
-
         let day_to_run = match arg.as_str() {
             "day1" | "1" => days::day1::run,
             "day2" | "2" => days::day2::run,
@@ -20,7 +20,8 @@ fn main() -> anyhow::Result<()> {
             "day7" | "7" => days::day7::run,
             "day8" | "8" => days::day8::run,
             "day9" | "9" => days::day9::run,
-            _ => do_nothing
+            "day10" | "10" => days::day10::run,
+            _ => do_nothing,
         };
 
         day_to_run(&input_data)?;
@@ -35,8 +36,8 @@ fn main() -> anyhow::Result<()> {
         days::day7::run(&input_data)?;
         days::day8::run(&input_data)?;
         days::day9::run(&input_data)?;
+        days::day10::run(&input_data)?;
     }
-
 
     Ok(())
 }
