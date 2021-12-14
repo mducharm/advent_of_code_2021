@@ -12,8 +12,6 @@ pub fn run(input_data: &[(&str, &str)]) -> anyhow::Result<()> {
     data2.perform_all_folds();
     let answer_2 = data2.total_visible_dots();
 
-    data2.print();
-
     dbg!(answer_1);
     dbg!(answer_2);
 
@@ -69,10 +67,6 @@ fn parse_data(input: String) -> Grid<bool> {
 
     let mut grid = Grid::new(width, height, false);
 
-    println!("{:?}", width);
-    println!("{:?}", height);
-    println!("{:?}", grid.values.len());
-
     for (x, y) in pairs {
         grid.set(x, y, true);
     }
@@ -126,6 +120,17 @@ impl<T: Copy> Grid<T> {
     fn set(&mut self, x: usize, y: usize, value: T) {
         self.values[x + y * self.width] = value;
     }
+
+    fn get_all_coords(&self) -> Vec<(usize, usize, T)> {
+        let mut new_values = vec![];
+        for (i, val) in self.values.clone().into_iter().enumerate() {
+            let x = i % self.width;
+            let y = i / self.width;
+
+            new_values.push((x, y, val));
+        }
+        new_values
+    }
 }
 
 impl Grid<bool> {
@@ -167,16 +172,8 @@ impl Grid<bool> {
             }
 
             for (x, y) in coords_to_transpose {
-                // let mut new_y = self.height % y;
-                // if new_y > 0 { new_y -= 1; };
                 self.set(x, (self.height - 1) % y, true);
                 self.set(x, y, false);
-                println!("fold dir {:?} amount {:?}", direction, amount);
-                println!("height {:?}", self.height);
-                println!("y {:?}", y);
-                println!("{:?}", self.height % y);
-                // self.set(x, new_y, true);
-
             }
 
             self.height = new_height;
@@ -200,8 +197,26 @@ impl Grid<bool> {
                 self.set(x, y, false);
             }
 
-
             self.width = new_width;
+        }
+
+        // remove rows
+
+        let coords = self.get_all_coords();
+        let (width, height) = get_width_and_height(
+            coords
+                .clone()
+                .into_iter()
+                .map(|(w, h, _v)| (w, h))
+                .collect_vec(),
+        );
+
+        self.width = width + 1;
+        self.height = height + 1;
+        self.values = vec![false; (width + 1) * (height + 1)];
+
+        for (x, y, val) in coords {
+            self.set(x, y, val);
         }
     }
 
@@ -209,7 +224,6 @@ impl Grid<bool> {
         for (direction, amount) in &self.fold_instructions.clone() {
             self.perform_fold(*direction, *amount);
         }
-
     }
 }
 
@@ -246,13 +260,13 @@ fold along x=5";
     fn part_1() -> anyhow::Result<()> {
         let mut data = parse_data(String::from(INPUT));
 
-        println!("{:#?}", &data);
-
         data.perform_fold(FoldDirection::Y, 7);
+        data.print();
+
         assert_eq!(data.total_visible_dots(), 17);
 
         data.perform_fold(FoldDirection::X, 5);
-
+        data.print();
         assert_eq!(data.total_visible_dots(), 16);
 
         Ok(())
