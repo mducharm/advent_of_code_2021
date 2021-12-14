@@ -7,7 +7,8 @@ fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
 
     let input_data = include_input_data!(
-        "day1", "day2", "day3", "day4", "day5", "day6", "day7", "day8", "day9", "day10", "day11"
+        "day1", "day2", "day3", "day4", "day5", "day6", "day7", "day8", "day9", "day10", "day11",
+        "day12", "day13"
     );
 
     if let Some(arg) = args.get(1) {
@@ -23,6 +24,8 @@ fn main() -> anyhow::Result<()> {
             "day9" | "9" => days::day9::run,
             "day10" | "10" => days::day10::run,
             "day11" | "11" => days::day11::run,
+            "day12" | "12" => days::day12::run,
+            "day13" | "13" => days::day13::run,
             _ => do_nothing,
         };
 
@@ -40,6 +43,8 @@ fn main() -> anyhow::Result<()> {
         days::day9::run(&input_data)?;
         days::day10::run(&input_data)?;
         days::day11::run(&input_data)?;
+        days::day12::run(&input_data)?;
+        days::day13::run(&input_data)?;
     }
 
     Ok(())
