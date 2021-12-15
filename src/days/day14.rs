@@ -22,11 +22,19 @@ pub fn run(input_data: &[(&str, &str)]) -> anyhow::Result<()> {
 fn parse_data(input: String) -> PolymerizationProcess {
     let mut s = input.lines();
 
-    let template: Vec<char> = s.next().unwrap().chars().collect_vec();
+    let pair_count: HashMap<(char, char), usize> =
+        s.next()
+            .unwrap()
+            .chars()
+            .tuple_windows()
+            .fold(HashMap::new(), |mut acc, pair| {
+                *acc.entry(pair).or_insert(0) += 1;
+                acc
+            });
 
     s.next();
 
-    let mut insertion_rules = vec![];
+    let mut rules = HashMap::new();
 
     for line in s {
         let mut instruction = line.split_whitespace();
@@ -43,62 +51,43 @@ fn parse_data(input: String) -> PolymerizationProcess {
 
         let element_to_insert: char = instruction.next().unwrap().chars().next().unwrap();
 
-        insertion_rules.push(InsertionRule {
-            pattern,
-            element_to_insert,
-        })
+        let (fst, snd) = pattern;
+
+        rules
+            .entry(pattern)
+            .or_insert(((fst, element_to_insert), (element_to_insert, snd)));
+
     }
 
+    println!("{:?}", pair_count);
+    println!("{:?}", rules);
+
     PolymerizationProcess {
-        template,
-        insertion_rules,
+        pair_count,
+        insertion_rules: InsertionRules(rules),
     }
 }
 
 struct PolymerizationProcess {
-    template: Vec<char>,
-    insertion_rules: Vec<InsertionRule>,
+    pair_count: HashMap<(char, char), usize>,
+    insertion_rules: InsertionRules,
 }
 
-#[derive(Clone, Copy)]
-struct InsertionRule {
-    pattern: (char, char),
-    element_to_insert: char,
-}
+struct InsertionRules(HashMap<(char, char), ((char, char), (char, char))>);
+
 
 impl PolymerizationProcess {
     fn apply_insertion_rules(&mut self) {
-        let mut windows = self
-            .template
-            .clone()
-            .into_iter()
-            .tuple_windows();
+        let mut new_pair_count = HashMap::new();
 
-        let mut new_template: Vec<char> = vec![];
-
-        let first_pair: (char, char) = windows.next().unwrap();
-
-        new_template.push(first_pair.0);
-
-        for rule in self.insertion_rules.clone() {
-            if first_pair == rule.pattern {
-                new_template.push(rule.element_to_insert);
+        for (pair, count) in self.pair_count.clone() {
+            if let Some((fst, snd)) = self.insertion_rules.0.get(&pair) {
+                *new_pair_count.entry(*fst).or_insert(0) += count;
+                *new_pair_count.entry(*snd).or_insert(0) += count;
             }
         }
-        new_template.push(first_pair.1);
 
-        for pair in windows {
-            let (_a, b) = pair;
-
-            for rule in self.insertion_rules.clone() {
-                if pair == rule.pattern {
-                    new_template.push(rule.element_to_insert);
-                }
-            }
-                
-            new_template.push(b);
-        }
-        self.template = new_template;
+        self.pair_count = new_pair_count;
     }
 
     fn apply_rules_x_times(&mut self, x: usize) {
@@ -112,29 +101,37 @@ impl PolymerizationProcess {
     }
 
     fn most_common_element(&self) -> usize {
-        *self.get_element_counts()
+        *self
+            .get_element_counts()
             .iter()
-            .map(|(c, v)| v)
+            .map(|(_c, v)| v)
             .max()
             .unwrap()
     }
 
     fn least_common_element(&self) -> usize {
-        *self.get_element_counts()
+        *self
+            .get_element_counts()
             .iter()
-            .map(|(c, v)| v)
+            .map(|(_c, v)| v)
             .min()
             .unwrap()
     }
 
     fn get_element_counts(&self) -> HashMap<char, usize> {
-        self.template
-            .clone()
-            .into_iter()
-            .fold(HashMap::new(), |mut acc, el| {
-                *acc.entry(el).or_insert(0) += 1;
-                acc
-            })
+
+        let mut count = HashMap::new();
+
+        for ((fst, snd), amount) in self.pair_count.clone(){
+            *count.entry(fst).or_insert(0) += amount;
+            *count.entry(snd).or_insert(0) += amount;
+        }
+
+        for (c, amount) in count.clone() {
+            *count.entry(c).or_insert(0) = (amount + 1) / 2;
+        }
+
+        count
     }
 }
 
@@ -166,21 +163,8 @@ CN -> C";
     fn part_1() -> anyhow::Result<()> {
         let mut data = parse_data(String::from(INPUT));
 
-        data.apply_rules_x_times(1);
-        assert_eq!(String::from_iter(data.template.clone()), "NCNBCHB");
+        data.apply_rules_x_times(10);
 
-        data.apply_rules_x_times(1);
-        assert_eq!(String::from_iter(data.template.clone()), "NBCCNBBBCBHCB");
-
-        data.apply_rules_x_times(1);
-        assert_eq!(String::from_iter(data.template.clone()), "NBBBCNCCNBBNBNBBCHBHHBCHB");
-
-        data.apply_rules_x_times(1);
-        assert_eq!(String::from_iter(data.template.clone()), "NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB");
-
-        data.apply_rules_x_times(6);
-
-        assert_eq!(data.least_common_element(), 161);
         assert_eq!(data.most_common_element(), 1749);
         assert_eq!(data.most_common_minus_least_common(), 1588);
 
