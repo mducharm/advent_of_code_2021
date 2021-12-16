@@ -8,7 +8,7 @@ fn main() -> anyhow::Result<()> {
 
     let input_data = include_input_data!(
         "day1", "day2", "day3", "day4", "day5", "day6", "day7", "day8", "day9", "day10", "day11",
-        "day12", "day13", "day14"
+        "day12", "day13", "day14", "day15"
     );
 
     if let Some(arg) = args.get(1) {
@@ -27,6 +27,7 @@ fn main() -> anyhow::Result<()> {
             "day12" | "12" => days::day12::run,
             "day13" | "13" => days::day13::run,
             "day14" | "14" => days::day14::run,
+            "day15" | "15" => days::day15::run,
             _ => do_nothing,
         };
 
@@ -47,6 +48,7 @@ fn main() -> anyhow::Result<()> {
         days::day12::run(&input_data)?;
         days::day13::run(&input_data)?;
         days::day14::run(&input_data)?;
+        days::day15::run(&input_data)?;
     }
 
     Ok(())
